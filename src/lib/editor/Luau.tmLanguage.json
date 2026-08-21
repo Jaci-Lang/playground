@@ -411,7 +411,7 @@
     "keyword": {
       "patterns": [
         {
-          "match": "\\b(break|do|else|for|if|elseif|return|then|repeat|while|until|end|in|continue)\\b",
+          "match": "\\b(break|do|else|for|if|elseif|return|then|repeat|while|until|end|in|continue|await)\\b",
           "name": "keyword.control.luau"
         },
         {
