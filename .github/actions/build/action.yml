@@ -96,4 +96,4 @@ runs:
 
     - name: Build
       shell: bash
-      run: npx vite build --base=./
+      run: npx vite build --base=/playground/

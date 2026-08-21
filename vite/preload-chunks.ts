@@ -11,9 +11,10 @@ export function preloadDynamicChunks(): Plugin {
       if (!ctx.bundle) return html;
 
       const preloads: string[] = [];
+      const base = ctx.server?.config.base || './';
       for (const [fileName] of Object.entries(ctx.bundle)) {
         if (fileName.startsWith('assets/setup-') && fileName.endsWith('.js')) {
-          preloads.push(`<link rel="modulepreload" crossorigin href="/${fileName}">`);
+          preloads.push(`<link rel="modulepreload" crossorigin href="${base}${fileName}">`);
         }
       }
 

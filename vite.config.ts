@@ -13,6 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/playground/',
   plugins: [compileGrammarPlugin(), svelte(), tailwindcss(), preloadDynamicChunks(), prerenderPlugin(), inlineCss()],
   resolve: {
     alias: {
