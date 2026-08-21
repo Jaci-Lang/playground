@@ -32,30 +32,8 @@ const modeToNum = (mode: LuauMode): number =>
 let robloxStudioFlagPayloadPromise: Promise<string | null> | null = null;
 
 async function getRobloxStudioFlagPayload(): Promise<string | null> {
-  if (!robloxStudioFlagPayloadPromise) {
-    robloxStudioFlagPayloadPromise = fetch(ROBLOX_PC_STUDIO_FLAGS_URL)
-      .then((response) => response.json())
-      .then(({ applicationSettings }: { applicationSettings?: Record<string, string> }) => {
-        const lines: string[] = [];
-
-        for (const [name, value] of Object.entries(applicationSettings ?? {})) {
-          for (const kind of ROBLOX_FAST_FLAG_KINDS) {
-            if (name.startsWith(`${kind}Luau`)) {
-              lines.push(`${name.slice(kind.length)}=${value}`);
-              break;
-            }
-          }
-        }
-
-        return lines.length > 0 ? lines.join('\n') : null;
-      })
-      .catch((error) => {
-        console.warn('[Luau] Failed to sync Roblox Studio Luau flags:', error);
-        return null;
-      });
-  }
-
-  return robloxStudioFlagPayloadPromise;
+  // Jaci is standalone and should not inherit Roblox Studio client flags
+  return null;
 }
 
 // Compiled WASM module - shared with workers to avoid recompilation
