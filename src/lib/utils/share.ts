@@ -90,7 +90,7 @@ export function generatePlaygroundUrl(): URL {
  * Generate an embed URL for the current playground state.
  */
 export function generateEmbedUrl(theme: ThemeMode = 'system'): URL {
-  if (typeof window === 'undefined') return new URL('https://play.luau.org/');
+  if (typeof window === 'undefined') return new URL('https://jaci-lang.github.io/playground/');
 
   const state: ShareState = {
     files: get(files),
@@ -112,7 +112,7 @@ export function generateEmbedUrl(theme: ThemeMode = 'system'): URL {
  */
 export function generateEmbedCode(theme: ThemeMode = 'system', height = '400px'): string {
   const url = generateEmbedUrl(theme);
-  return `<iframe\n  src="${url.toString()}"\n  width="100%"\n  height="${height}"\n  style="border: 1px solid #e2e8f0; border-radius: 8px;"\n  loading="lazy"\n  allow="clipboard-write"\n  title="Luau Playground"\n></iframe>`;
+  return `<iframe\n  src="${url.toString()}"\n  width="100%"\n  height="${height}"\n  style="border: 1px solid #e2e8f0; border-radius: 8px;"\n  loading="lazy"\n  allow="clipboard-write"\n  title="Jaci Playground"\n></iframe>`;
 }
 
 /**

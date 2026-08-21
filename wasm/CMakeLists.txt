@@ -13,18 +13,18 @@
 #   emmake make
 #
 cmake_minimum_required(VERSION 3.16)
-project(LuauPlayground LANGUAGES CXX C)
+project(JaciPlayground LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Luau source directory
-set(LUAU_SOURCE_DIR "${CMAKE_SOURCE_DIR}/luau" CACHE PATH "Path to Luau source")
+# Luau/Jaci source directory
+set(LUAU_SOURCE_DIR "${CMAKE_SOURCE_DIR}/luau" CACHE PATH "Path to Jaci source")
 
 if(NOT EXISTS "${LUAU_SOURCE_DIR}/CMakeLists.txt")
     message(FATAL_ERROR 
-        "Luau source not found at ${LUAU_SOURCE_DIR}. "
-        "Please clone the Luau repository: git clone https://github.com/Roblox/luau.git luau"
+        "Jaci source not found at ${LUAU_SOURCE_DIR}. "
+        "Please clone the Jaci repository: git clone https://github.com/Jaci-Lang/jaci.git luau"
     )
 endif()
 

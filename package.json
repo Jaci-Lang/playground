@@ -1,8 +1,8 @@
 {
-  "name": "luau-playground",
+  "name": "jaci-playground",
   "private": true,
   "version": "0.1.0",
-  "description": "Browser-based Luau code playground with execution and IDE features",
+  "description": "Browser-based Jaci code playground with execution and IDE features",
   "type": "module",
   "license": "MIT",
   "scripts": {

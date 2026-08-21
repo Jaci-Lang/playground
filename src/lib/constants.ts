@@ -12,13 +12,13 @@ export const defaultSettings: PlaygroundSettings = {
 };
 
 // Key for localStorage persistence of settings
-export const STORAGE_KEY = 'luau-playground-settings';
+export const STORAGE_KEY = 'jaci-playground-settings';
 
 // Key for localStorage persistence of editor/files state
-export const PLAYGROUND_STORAGE_KEY = 'luau-playground-state';
+export const PLAYGROUND_STORAGE_KEY = 'jaci-playground-state';
 
 // Key for localStorage persistence of small UI state (panels, etc)
-export const UI_STORAGE_KEY = 'luau-playground-ui';
+export const UI_STORAGE_KEY = 'jaci-playground-ui';
 
 // Filename used when working with a single default file
 export const DEFAULT_FILENAME = 'main.luau';

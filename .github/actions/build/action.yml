@@ -10,17 +10,25 @@ runs:
         repository: emscripten-core/emsdk
         path: emsdk
 
-    - name: Get latest Luau release
+    - name: Get latest Jaci release
       id: luau-release
       shell: bash
       run: |
-        # Fetch the latest release tag from luau-lang/luau
-        LATEST_TAG=$(curl -s https://api.github.com/repos/luau-lang/luau/releases/latest | jq -r '.tag_name')
-        echo "Latest Luau release: $LATEST_TAG"
+        # Fetch the latest release tag from Jaci-Lang/jaci (fallback to main if no release yet)
+        RESPONSE=$(curl -s https://api.github.com/repos/Jaci-Lang/jaci/releases/latest)
+        LATEST_TAG=$(echo "$RESPONSE" | jq -r '.tag_name // empty')
+        if [ -z "$LATEST_TAG" ] || [ "$LATEST_TAG" = "null" ]; then
+          echo "No GitHub release found on Jaci-Lang/jaci. Falling back to main branch."
+          LATEST_TAG="main"
+        fi
+        echo "Latest Jaci release: $LATEST_TAG"
         echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
 
-        # Fetch the commit hash for this tag
-        COMMIT_HASH=$(curl -s https://api.github.com/repos/luau-lang/luau/git/ref/tags/$LATEST_TAG | jq -r '.object.sha')
+        if [ "$LATEST_TAG" = "main" ]; then
+          COMMIT_HASH=$(curl -s https://api.github.com/repos/Jaci-Lang/jaci/commits/main | jq -r '.sha // "main"')
+        else
+          COMMIT_HASH=$(curl -s https://api.github.com/repos/Jaci-Lang/jaci/git/ref/tags/$LATEST_TAG | jq -r '.object.sha // "latest"')
+        fi
         echo "Commit hash: $COMMIT_HASH"
         echo "commit=$COMMIT_HASH" >> "$GITHUB_OUTPUT"
 
@@ -45,12 +53,16 @@ runs:
         ./emsdk install latest
         ./emsdk activate latest
 
-    - name: Clone or update Luau
+    - name: Clone or update Jaci
       shell: bash
       run: |
         TAG=${{ steps.luau-release.outputs.tag }}
         if [ ! -d "wasm/luau" ]; then
-          git clone --depth 1 --branch $TAG https://github.com/luau-lang/luau.git wasm/luau
+          if [ "$TAG" = "main" ]; then
+            git clone --depth 1 https://github.com/Jaci-Lang/jaci.git wasm/luau
+          else
+            git clone --depth 1 --branch $TAG https://github.com/Jaci-Lang/jaci.git wasm/luau
+          fi
         else
           cd wasm/luau
           git fetch origin $TAG

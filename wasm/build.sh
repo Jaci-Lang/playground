@@ -20,11 +20,11 @@ if ! command -v emcmake &> /dev/null; then
     exit 1
 fi
 
-# Check for Luau source
+# Check for Jaci source
 LUAU_DIR="$SCRIPT_DIR/luau"
 if [ ! -d "$LUAU_DIR" ] || [ ! -f "$LUAU_DIR/CMakeLists.txt" ]; then
-    echo "Luau source not found. Cloning..."
-    git clone --depth 1 https://github.com/Roblox/luau.git "$LUAU_DIR"
+    echo "Jaci source not found. Cloning..."
+    git clone --depth 1 https://github.com/Jaci-Lang/jaci.git "$LUAU_DIR"
 fi
 
 # Create build directory

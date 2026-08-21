@@ -1,14 +1,14 @@
-# Luau Playground
+# Jaci Playground
 
-A browser-based Luau code playground with execution and IDE features.
+A browser-based Jaci code playground with execution and IDE features.
 
-![Luau Playground](https://img.shields.io/badge/Luau-Playground-blue)
+![Jaci Playground](https://img.shields.io/badge/Jaci-Playground-blue)
 
 ## Features
 
-- **Code Execution**: Run Luau code directly in the browser via WebAssembly
-- **Type Checking**: Type check Luau code directly in the browser via WebAssembly
-- **Syntax Highlighting**: Full Luau syntax support with light/dark themes
+- **Code Execution**: Run Jaci code directly in the browser via WebAssembly
+- **Type Checking**: Type check Jaci code directly in the browser via WebAssembly
+- **Syntax Highlighting**: Full Luau/Jaci syntax support with light/dark themes
 - **IDE Features**: 
   - Real-time diagnostics (type errors, lint warnings)
   - Autocomplete with type information
@@ -21,8 +21,8 @@ A browser-based Luau code playground with execution and IDE features.
 ## Stack
 
 - **Frontend**: Svelte 5 + Vite
-- **Editor**: CodeMirror 6 with custom Luau language mode
-- **Runtime**: Luau compiled to WebAssembly
+- **Editor**: CodeMirror 6 with custom Luau/Jaci language mode
+- **Runtime**: Jaci compiled to WebAssembly
 
 ## Getting Started
 
@@ -49,7 +49,7 @@ npm run preview
 
 ### Building the WASM Module
 
-The Luau WASM module needs to be built separately using Emscripten:
+The Jaci WASM module is built using Emscripten:
 
 ```bash
 cd wasm
@@ -75,7 +75,7 @@ The built WASM file will be copied to `public/wasm/`.
 Share playground state via URL hash:
 
 ```
-https://play.luau.org/#<compressed-state>
+https://jaci-lang.github.io/playground/#<compressed-state>
 ```
 
 The state is LZ-String compressed and versioned JSON:
@@ -110,7 +110,7 @@ v1:
 Embed the playground in an iframe with a minimal UI:
 
 ```
-https://play.luau.org/?embed=true#<compressed-state>
+https://jaci-lang.github.io/playground/?embed=true#<compressed-state>
 ```
 
 Query parameters:
