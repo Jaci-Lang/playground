@@ -46,6 +46,10 @@ LUAU_FASTFLAG(LuauSolverV2)
 #include "lua.h"
 #include "lualib.h"
 #include "luacode.h"
+#include "lstate.h"
+#include "lobject.h"
+#include "lapi.h"
+#include "Luau/IrBuilder.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -690,6 +694,35 @@ static std::string getCodegenAssembly(
     return "Error loading bytecode";
 }
 
+static void gatherFunctionsHelper(
+    std::vector<Proto*>& results,
+    Proto* proto,
+    const unsigned int flags,
+    const bool hasNativeFunctions,
+    const bool root
+)
+{
+    if (results.size() <= size_t(proto->bytecodeid))
+        results.resize(proto->bytecodeid + 1);
+
+    if (results[proto->bytecodeid])
+        return;
+
+    bool shouldGather = hasNativeFunctions ? (!root && (proto->flags & LPF_NATIVE_FUNCTION) != 0)
+                                           : ((proto->flags & LPF_NATIVE_COLD) == 0 || (flags & Luau::CodeGen::CodeGen_ColdFunctions) != 0);
+
+    if (shouldGather)
+        results[proto->bytecodeid] = proto;
+
+    for (int i = 0; i < proto->sizep; i++)
+        gatherFunctionsHelper(results, proto->p[i], flags, hasNativeFunctions, false);
+}
+
+static void gatherAllFunctions(std::vector<Proto*>& results, Proto* root, const unsigned int flags, const bool hasNativeFunctions = false)
+{
+    gatherFunctionsHelper(results, root, flags, hasNativeFunctions, true);
+}
+
 static std::string getCodegenHir(
     const char* name,
     const std::string& bytecode,
@@ -705,7 +738,7 @@ static std::string getCodegenHir(
     Proto* root = clvalue(func)->l.p;
 
     std::vector<Proto*> protos;
-    Luau::CodeGen::gatherFunctions(protos, root, options.compilationOptions.flags, root->flags & LPF_NATIVE_FUNCTION);
+    gatherAllFunctions(protos, root, options.compilationOptions.flags, (root->flags & LPF_NATIVE_FUNCTION) != 0);
 
     std::string result;
     for (Proto* p : protos) {
@@ -742,7 +775,7 @@ static std::string getCodegenMir(
     Proto* root = clvalue(func)->l.p;
 
     std::vector<Proto*> protos;
-    Luau::CodeGen::gatherFunctions(protos, root, options.compilationOptions.flags, root->flags & LPF_NATIVE_FUNCTION);
+    gatherAllFunctions(protos, root, options.compilationOptions.flags, (root->flags & LPF_NATIVE_FUNCTION) != 0);
 
     std::string result;
     for (Proto* p : protos) {
