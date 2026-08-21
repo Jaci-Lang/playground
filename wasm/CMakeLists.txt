@@ -40,43 +40,16 @@ file(GLOB LUAU_REQUIRE_SOURCES "${LUAU_SOURCE_DIR}/Require/src/*.cpp")
 
 # CodeGen sources - only include files needed for assembly TEXT generation
 # Exclude files that require native JIT features (memory allocation, cache flush, etc.)
-set(LUAU_CODEGEN_SOURCES
-    "${LUAU_SOURCE_DIR}/CodeGen/src/AssemblyBuilderA64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/AssemblyBuilderX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/BytecodeAnalysis.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/BytecodeSummary.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeGenA64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeGenAssembly.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeGenUtils.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeGenX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/EmitCommonX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/EmitBuiltinsX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/EmitInstructionX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrAnalysis.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrBuilder.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrCallWrapperX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrDump.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrLoweringA64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrLoweringX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrRegAllocA64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrRegAllocX64.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrTranslateBuiltins.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrTranslation.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrUtils.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/IrValueLocationTracking.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/NativeProtoExecData.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/NativeState.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/OptimizeConstProp.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/OptimizeDeadStore.cpp"
-    "${LUAU_SOURCE_DIR}/CodeGen/src/OptimizeFinalX64.cpp"
+# CodeGen sources - include all analysis/compilation files, exclude native JIT execution allocators
+file(GLOB LUAU_CODEGEN_SOURCES "${LUAU_SOURCE_DIR}/CodeGen/src/*.cpp")
+list(REMOVE_ITEM LUAU_CODEGEN_SOURCES
+    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeAllocator.cpp"
+    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeBlockUnwind.cpp"
+    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeGen.cpp"
+    "${LUAU_SOURCE_DIR}/CodeGen/src/CodeGenContext.cpp"
+    "${LUAU_SOURCE_DIR}/CodeGen/src/SharedCodeAllocator.cpp"
+    "${LUAU_SOURCE_DIR}/CodeGen/src/lcodegen.cpp"
 )
-# Excluded (require native JIT features):
-# - CodeAllocator.cpp (uses __clear_cache, mprotect)
-# - CodeBlockUnwind.cpp (platform-specific unwind registration)
-# - CodeGen.cpp (main JIT entry with platform detection)
-# - CodeGenContext.cpp (JIT context management)
-# - SharedCodeAllocator.cpp (shared code allocation)
-# - lcodegen.cpp (C interface to JIT)
 
 # Create static libraries for each component
 add_library(Luau.Common STATIC ${LUAU_COMMON_SOURCES})
