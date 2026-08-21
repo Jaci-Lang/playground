@@ -360,9 +360,11 @@
   function getFormatLabel(format: number): string {
     switch (format) {
       case 0: return 'VM Bytecode';
-      case 1: return 'IR';
-      case 2: return 'x64 Assembly';
-      case 3: return 'ARM64 Assembly';
+      case 1: return 'Luau IR';
+      case 2: return 'HIR (SSA)';
+      case 3: return 'MIR (Unboxed)';
+      case 4: return 'x64 Assembly';
+      case 5: return 'ARM64 Assembly';
       default: return 'Bytecode';
     }
   }

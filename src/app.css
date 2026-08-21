@@ -22,7 +22,7 @@
   font-family: "Builder Sans";
   font-style: normal;
   font-display: fallback;
-  src: url("/font/BuilderSans-Regular.woff2") format("woff2");
+  src: url("./font/BuilderSans-Regular.woff2") format("woff2");
 }
 
 /* Builder Mono font family */
@@ -31,7 +31,7 @@
   font-style: normal;
   font-display: fallback;
   font-variant-ligatures: none;
-  src: url("/font/BuilderMono-Regular.woff2") format("woff2");
+  src: url("./font/BuilderMono-Regular.woff2") format("woff2");
 }
 
 /* Fallback fonts for improved CLS */

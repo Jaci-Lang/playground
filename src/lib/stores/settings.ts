@@ -7,7 +7,7 @@ export type LuauMode = "strict" | "nonstrict" | "nocheck";
 export type SolverMode = "new" | "old";
 export type OptimizationLevel = 0 | 1 | 2;
 export type DebugLevel = 0 | 1 | 2;
-export type OutputFormat = 0 | 1 | 2 | 3;
+export type OutputFormat = 0 | 1 | 2 | 3 | 4 | 5;
 
 export interface PlaygroundSettings {
   // Type checking

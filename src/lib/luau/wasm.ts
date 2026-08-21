@@ -76,8 +76,12 @@ async function getCompiledWasmModule(): Promise<WebAssembly.Module> {
         if (typeof __wasmPromises !== 'undefined') {
           buffer = await __wasmPromises.luau;
         } else {
-          const baseUrl = new URL('./', document.baseURI).href.replace(/\/$/, '');
-          buffer = await fetch(`${baseUrl}/wasm/luau.wasm`).then(r => r.arrayBuffer());
+          const wasmUrl = new URL('wasm/luau.wasm', document.baseURI).href;
+          const res = await fetch(wasmUrl);
+          if (!res.ok) {
+            throw new Error(`Failed to fetch luau.wasm: ${res.status} ${res.statusText}`);
+          }
+          buffer = await res.arrayBuffer();
         }
         // Compile once - the compiled module can be shared with workers
         compiledWasmModule = await WebAssembly.compile(buffer);

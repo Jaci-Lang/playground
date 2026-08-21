@@ -41,9 +41,11 @@
 
   const outputFormat: { value: OutputFormat; label: string; description: string }[] = [
     { value: 0, label: 'VM', description: 'VM bytecode' },
-    { value: 1, label: 'IR', description: 'IR bytecode' },
-    { value: 2, label: 'x64', description: 'x64 native code' },
-    { value: 3, label: 'arm64', description: 'arm64 native code' },
+    { value: 1, label: 'IR', description: 'Luau IR bytecode' },
+    { value: 2, label: 'HIR', description: 'High-Level IR (SSA)' },
+    { value: 3, label: 'MIR', description: 'Medium-Level IR (Unboxed)' },
+    { value: 4, label: 'x64', description: 'x64 assembly' },
+    { value: 5, label: 'ARM64', description: 'ARM64 assembly' },
   ];
 
   async function handleModeChange(mode: LuauMode) {

@@ -24,6 +24,8 @@
 #include "Luau/BuiltinDefinitions.h"
 #include "Luau/BytecodeBuilder.h"
 #include "Luau/CodeGen.h"
+#include "Luau/Hir.h"
+#include "Luau/Mir.h"
 #include "Luau/Common.h"
 #include "Luau/Compiler.h"
 #include "Luau/Config.h"
@@ -688,6 +690,84 @@ static std::string getCodegenAssembly(
     return "Error loading bytecode";
 }
 
+static std::string getCodegenHir(
+    const char* name,
+    const std::string& bytecode,
+    Luau::CodeGen::AssemblyOptions options
+) {
+    std::unique_ptr<lua_State, void (*)(lua_State*)> globalState(luaL_newstate(), lua_close);
+    lua_State* L = globalState.get();
+
+    if (luau_load(L, name, bytecode.data(), bytecode.size(), 0) != 0)
+        return "Error loading bytecode";
+
+    const TValue* func = luaA_toobject(L, -1);
+    Proto* root = clvalue(func)->l.p;
+
+    std::vector<Proto*> protos;
+    Luau::CodeGen::gatherFunctions(protos, root, options.compilationOptions.flags, root->flags & LPF_NATIVE_FUNCTION);
+
+    std::string result;
+    for (Proto* p : protos) {
+        if (!p) continue;
+        Luau::CodeGen::IrBuilder ir(options.compilationOptions.hooks);
+        ir.buildFunctionIr(p);
+
+        Luau::CodeGen::Hir::HirBuilder hirBuilder;
+        Luau::CodeGen::Hir::Function hirFn = hirBuilder.liftFromIr(ir.function);
+        Luau::CodeGen::Hir::optimizeHir(hirFn);
+
+        if (p->debugname) {
+            result += "; function " + std::string(getstr(p->debugname)) + "\n";
+        } else {
+            result += "; function [anonymous]\n";
+        }
+        result += Luau::CodeGen::Hir::toString(hirFn) + "\n\n";
+    }
+    return result;
+}
+
+static std::string getCodegenMir(
+    const char* name,
+    const std::string& bytecode,
+    Luau::CodeGen::AssemblyOptions options
+) {
+    std::unique_ptr<lua_State, void (*)(lua_State*)> globalState(luaL_newstate(), lua_close);
+    lua_State* L = globalState.get();
+
+    if (luau_load(L, name, bytecode.data(), bytecode.size(), 0) != 0)
+        return "Error loading bytecode";
+
+    const TValue* func = luaA_toobject(L, -1);
+    Proto* root = clvalue(func)->l.p;
+
+    std::vector<Proto*> protos;
+    Luau::CodeGen::gatherFunctions(protos, root, options.compilationOptions.flags, root->flags & LPF_NATIVE_FUNCTION);
+
+    std::string result;
+    for (Proto* p : protos) {
+        if (!p) continue;
+        Luau::CodeGen::IrBuilder ir(options.compilationOptions.hooks);
+        ir.buildFunctionIr(p);
+
+        Luau::CodeGen::Hir::HirBuilder hirBuilder;
+        Luau::CodeGen::Hir::Function hirFn = hirBuilder.liftFromIr(ir.function);
+        Luau::CodeGen::Hir::optimizeHir(hirFn);
+
+        Luau::CodeGen::Mir::MirBuilder mirBuilder;
+        Luau::CodeGen::Mir::Function mirFn = mirBuilder.lowerFromHir(hirFn);
+        Luau::CodeGen::Mir::optimizeMir(mirFn);
+
+        if (p->debugname) {
+            result += "; function " + std::string(getstr(p->debugname)) + "\n";
+        } else {
+            result += "; function [anonymous]\n";
+        }
+        result += Luau::CodeGen::Mir::toString(mirFn) + "\n\n";
+    }
+    return result;
+}
+
 static void annotateInstruction(void* context, std::string& text, int fid, int instpos)
 {
     Luau::BytecodeBuilder& bcb = *(Luau::BytecodeBuilder*)context;
@@ -879,11 +959,20 @@ EXPORT const char* luau_dump_bytecode(const char* code, int optimizationLevel, i
             asmOptions.includeIr = true;
             asmOptions.includeIrTypes = false;
             asmOptions.includeOutlinedCode = false;
-            // Include top-level "cold" code (no loops) so playground shows output for all code, not just functions
             asmOptions.compilationOptions.flags = Luau::CodeGen::CodeGen_ColdFunctions;
             dump = getCodegenAssembly("main", bytecode.getBytecode(), asmOptions, nullptr);
             break;
         case 2:
+            // HIR (High-Level Intermediate Representation)
+            asmOptions.compilationOptions.flags = Luau::CodeGen::CodeGen_ColdFunctions;
+            dump = getCodegenHir("main", bytecode.getBytecode(), asmOptions);
+            break;
+        case 3:
+            // MIR (Medium-Level Intermediate Representation)
+            asmOptions.compilationOptions.flags = Luau::CodeGen::CodeGen_ColdFunctions;
+            dump = getCodegenMir("main", bytecode.getBytecode(), asmOptions);
+            break;
+        case 4:
             asmOptions.target = Luau::CodeGen::AssemblyOptions::X64_SystemV;
             asmOptions.outputBinary = false;
             asmOptions.includeAssembly = true;
@@ -893,7 +982,7 @@ EXPORT const char* luau_dump_bytecode(const char* code, int optimizationLevel, i
             asmOptions.compilationOptions.flags = Luau::CodeGen::CodeGen_ColdFunctions;
             dump = getCodegenAssembly("main", bytecode.getBytecode(), asmOptions, nullptr);
             break;
-        case 3:
+        case 5:
             asmOptions.target = Luau::CodeGen::AssemblyOptions::A64;
             asmOptions.outputBinary = false;
             asmOptions.includeAssembly = true;
