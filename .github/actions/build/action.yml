@@ -17,21 +17,29 @@ runs:
         # Fetch the latest release tag from Jaci-Lang/jaci (fallback to main if no release yet)
         RESPONSE=$(curl -s https://api.github.com/repos/Jaci-Lang/jaci/releases/latest)
         LATEST_TAG=$(echo "$RESPONSE" | jq -r '.tag_name // empty')
+
         if [ -z "$LATEST_TAG" ] || [ "$LATEST_TAG" = "null" ]; then
           echo "No GitHub release found on Jaci-Lang/jaci. Falling back to main branch."
           LATEST_TAG="main"
         fi
+
         echo "Latest Jaci release: $LATEST_TAG"
         echo "tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
 
         if [ "$LATEST_TAG" = "main" ]; then
-          COMMIT_HASH=$(git ls-remote https://github.com/Jaci-Lang/jaci.git refs/heads/main | awk '{print $1}')
-          if [ -z "$COMMIT_HASH" ]; then
-            COMMIT_HASH="main"
-          fi
+          COMMIT_HASH=$(git ls-remote https://github.com/Jaci-Lang/jaci.git refs/heads/main | awk 'NR==1 {print $1}')
         else
-          COMMIT_HASH=$(curl -s https://api.github.com/repos/Jaci-Lang/jaci/git/ref/tags/$LATEST_TAG | jq -r '.object.sha // "latest"')
+          COMMIT_HASH=$(git ls-remote https://github.com/Jaci-Lang/jaci.git "refs/tags/$LATEST_TAG^{}" | awk 'NR==1 {print $1}')
+
+          if [ -z "$COMMIT_HASH" ]; then
+            COMMIT_HASH=$(git ls-remote https://github.com/Jaci-Lang/jaci.git "refs/tags/$LATEST_TAG" | awk 'NR==1 {print $1}')
+          fi
         fi
+
+        if [ -z "$COMMIT_HASH" ]; then
+          COMMIT_HASH="$LATEST_TAG"
+        fi
+
         echo "Commit hash: $COMMIT_HASH"
         echo "commit=$COMMIT_HASH" >> "$GITHUB_OUTPUT"
 
@@ -59,17 +67,17 @@ runs:
     - name: Clone or update Jaci
       shell: bash
       run: |
-        TAG=${{ steps.luau-release.outputs.tag }}
+        TAG="${{ steps.luau-release.outputs.tag }}"
         if [ ! -d "wasm/luau/.git" ]; then
           rm -rf wasm/luau
           if [ "$TAG" = "main" ]; then
             git clone --depth 1 https://github.com/Jaci-Lang/jaci.git wasm/luau
           else
-            git clone --depth 1 --branch $TAG https://github.com/Jaci-Lang/jaci.git wasm/luau
+            git clone --depth 1 --branch "$TAG" https://github.com/Jaci-Lang/jaci.git wasm/luau
           fi
         else
           cd wasm/luau
-          git fetch origin $TAG --depth 1
+          git fetch origin "$TAG" --depth 1
           git reset --hard FETCH_HEAD
         fi
 
